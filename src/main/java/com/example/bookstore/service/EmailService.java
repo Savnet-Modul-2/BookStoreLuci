@@ -1,5 +1,6 @@
 package com.example.bookstore.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -11,22 +12,25 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Autowired
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    public void sendVerificationEmail(String toEmail, String verificationCode) {
+    public void sendVerificationEmail(String to, String verificationCode) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(toEmail);
-            helper.setSubject("Account Verification");
-            helper.setText("Your verification code is: " + verificationCode, true);
+
+            helper.setTo(to);
+            helper.setSubject("Verify Your Account");
+            helper.setText("<p>Your verification code is: <strong>" + verificationCode + "</strong></p>", true);
+
             mailSender.send(message);
-        } catch (Exception e) {
-            e.printStackTrace(); // Afișează eroarea în consolă
-            throw new RuntimeException("Failed to send email", e);
+            System.out.println("Email sent successfully!");
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send email.");
         }
     }
-
 }

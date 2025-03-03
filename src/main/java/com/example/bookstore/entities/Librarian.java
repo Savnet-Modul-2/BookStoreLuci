@@ -1,35 +1,34 @@
 package com.example.bookstore.entities;
 
-
 import jakarta.persistence.*;
 
-@Entity
-@Table(name = "librarians")
+@Entity(name = "librarian")
+@Table(name = "librarian", schema = "public")
 public class Librarian {
-
     @Id
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "NAME")
     private String name;
+
+    @Column(name = "EMAIL")
     private String email;
+
+    @Column(name = "PASSWORD")
     private String password;
 
-    @OneToOne
-    @JoinColumn(name = "library_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "library_id", referencedColumnName = "id")
     private Library library;
-
-    public Librarian() {}
-
-    public Librarian(String name, String email, String password, Library library) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.library = library;
-    }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -64,4 +63,3 @@ public class Librarian {
         this.library = library;
     }
 }
-

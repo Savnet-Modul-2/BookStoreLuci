@@ -1,61 +1,84 @@
 package com.example.bookstore.service;
 
-import com.example.bookstore.dto.UserDTO;
+
 import com.example.bookstore.entities.User;
 import com.example.bookstore.repository.UserRepository;
-import com.example.bookstore.utils.PasswordHasher;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
-import java.util.Optional;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.InputMismatchException;
+import java.util.Random;
 
 @Service
 public class UserService {
+    @Autowired
+    private UserRepository userRepository;
 
-    private final UserRepository userRepository;
-    private final EmailService emailService;
+    @Autowired
+    private EmailService emailService;
 
-    public UserService(UserRepository userRepository, EmailService emailService) {
-        this.userRepository = userRepository;
-        this.emailService = emailService;
-    }
-
-    public UserDTO registerUser(UserDTO userDTO) {
-        User user = new User();
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setYearOfBirth(userDTO.getYearOfBirth());
-        user.setGender(userDTO.getGender());
-        user.setEmail(userDTO.getEmail());
-        user.setPhoneNumber(userDTO.getPhoneNumber());
-        user.setPassword(PasswordHasher.hash(userDTO.getPassword()));
-        user.setCountry(userDTO.getCountry());
-
-        user.generateVerificationCode();
-        userRepository.save(user);
-
-        emailService.sendVerificationEmail(user.getEmail(), user.getVerificationCode());
-
-        return new UserDTO(user.getFirstName(), user.getLastName(), user.getEmail(), user.isVerifiedAccount());
-    }
-
-    public boolean verifyAccount(UserDTO userDTO) {
-        Optional<User> userOpt = userRepository.findByEmail(userDTO.getEmail());
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            if (user.getVerificationCode().equals(userDTO.getVerificationCode()) &&
-                    user.getCodeExpiry().isAfter(LocalDateTime.now())) {
-
-                user.setVerifiedAccount(true);
-                userRepository.save(user);
-                return true;
-            }
+    public User create(User user) {
+        if (user.getId() != null) {
+            throw new RuntimeException("You cannot provide an ID to a new user that you want to create");
         }
-        return false;
+        if (user.getVerificationCode() != null) {
+            throw new RuntimeException("You cannot provide a verification code to a user");
+        }
+
+        user.setPassword(encodePassword(user.getPassword()));
+        String verificationCode = generateVerificationCode();
+        user.setVerificationCode(verificationCode);
+
+        emailService.sendVerificationEmail(user.getEmail(), verificationCode);
+        return userRepository.save(user);
     }
 
-    public boolean loginUser(UserDTO userDTO) {
-        Optional<User> userOpt = userRepository.findByEmail(userDTO.getEmail());
-        return userOpt.map(user -> user.getPassword().equals(PasswordHasher.hash(userDTO.getPassword())))
-                .orElse(false);
+    public User verify(Long userId, User updatedUser) {
+        if (!userRepository.findById(userId).isPresent()) {
+            throw new EntityNotFoundException("User with ID " + userId + " not found");
+        }
+
+        User user = userRepository.findById(userId).get();
+        if (user.getVerificationCode().equals(updatedUser.getVerificationCode())) {
+            user.setVerified(true);
+            user.setVerificationCode("done");
+        }
+        return userRepository.save(user);
+    }
+
+    public User login(User user) {
+        User existentUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException("User with email " + user.getEmail() + " not found"));
+
+        String encodedPassword = encodePassword(user.getPassword());
+        if (!existentUser.isVerified() || !encodedPassword.equals(existentUser.getPassword())) {
+            throw new InputMismatchException();
+        }
+        return existentUser;
+    }
+
+    private String generateVerificationCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000); // Generate 6-digit code
+        return String.valueOf(code);
+    }
+
+    private String encodePassword(String password) {
+        String encodedPassword = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            encodedPassword = Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        return encodedPassword;
     }
 }

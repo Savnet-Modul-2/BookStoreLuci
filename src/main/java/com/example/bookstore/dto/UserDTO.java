@@ -1,54 +1,26 @@
 package com.example.bookstore.dto;
 
+import com.example.bookstore.entities.Gender;
 
 public class UserDTO {
+    private Long id;
     private String firstName;
     private String lastName;
-    private int yearOfBirth;
-    private String gender;
+    private Integer yearOfBirth;
+    private Gender gender;
     private String email;
     private String phoneNumber;
     private String password;
-    private String country;
-    private boolean verifiedAccount;
+    private boolean isVerified;
     private String verificationCode;
+    private String country;
 
-    public UserDTO() {}
-
-    public UserDTO(String email, String password) {
-        this.email = email;
-        this.password = password;
+    public Long getId() {
+        return id;
     }
 
-    public UserDTO(String firstName, String lastName, String email, boolean verifiedAccount) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.verifiedAccount = verifiedAccount;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getYearOfBirth() {
-        return yearOfBirth;
-    }
-
-    public void setYearOfBirth(int yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
-    }
-
-    public boolean isVerifiedAccount() {
-        return verifiedAccount;
-    }
-
-    public void setVerifiedAccount(boolean verifiedAccount) {
-        this.verifiedAccount = verifiedAccount;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getVerificationCode() {
@@ -59,28 +31,12 @@ public class UserDTO {
         this.verificationCode = verificationCode;
     }
 
-    public String getPassword() {
-        return password;
+    public String getCountry() {
+        return country;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public String getFirstName() {
@@ -91,11 +47,27 @@ public class UserDTO {
         this.firstName = firstName;
     }
 
-    public String getGender() {
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public Integer getYearOfBirth() {
+        return yearOfBirth;
+    }
+
+    public void setYearOfBirth(Integer yearOfBirth) {
+        this.yearOfBirth = yearOfBirth;
+    }
+
+    public Gender getGender() {
         return gender;
     }
 
-    public void setGender(String gender) {
+    public void setGender(Gender gender) {
         this.gender = gender;
     }
 
@@ -105,5 +77,29 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
     }
 }

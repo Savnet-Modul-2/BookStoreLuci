@@ -1,50 +1,19 @@
-package com.example.bookstore.entities;
+package com.example.bookstore.dto;
 
-import jakarta.persistence.*;
+import com.example.bookstore.entities.Category;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity(name = "book")
-@Table(name = "book", schema = "public")
-public class Book {
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class BookDTO {
     private Long id;
-
-    @Column(name = "ISBN")
     private String isbn;
-
-    @Column(name = "TITLE")
     private String title;
-
-    @Column(name = "AUTHOR")
     private String author;
-
-    @Column(name = "APPEARANCE_DATE")
     private LocalDate appearanceDate;
-
-    @Column(name = "NR_OF_PAGES")
     private Integer nrOfPages;
-
-    //@Enumerated(EnumType.STRING)
-    @Column(name = "CATEGORY")
     private Category category;
-
-    @Column(name = "LANGUAGE")
     private String language;
-
-    @ManyToOne
-    @JoinColumn(name = "library_id")
-    private Library library;
-
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
-            fetch = FetchType.LAZY,
-            orphanRemoval = true,
-            mappedBy = "book")
-    private List<Exemplary> exemplaries = new ArrayList<>();
+    private LibraryDTO library;
 
     public Long getId() {
         return id;
@@ -60,14 +29,6 @@ public class Book {
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
-    }
-
-    public List<Exemplary> getExemplaries() {
-        return exemplaries;
-    }
-
-    public void setExemplaries(List<Exemplary> exemplaries) {
-        this.exemplaries = exemplaries;
     }
 
     public String getTitle() {
@@ -118,19 +79,11 @@ public class Book {
         this.language = language;
     }
 
-    public Library getLibrary() {
+    public LibraryDTO getLibrary() {
         return library;
     }
 
-    public void setLibrary(Library library) {
+    public void setLibrary(LibraryDTO library) {
         this.library = library;
-    }
-
-    public void addExemplary(Exemplary exemplary) {
-        exemplaries.add(exemplary);
-    }
-
-    public void removeExemplary(Exemplary exemplary) {
-        exemplaries.remove(exemplary);
     }
 }

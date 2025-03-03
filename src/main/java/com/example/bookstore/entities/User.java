@@ -1,56 +1,81 @@
 package com.example.bookstore.entities;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.UUID;
 
-@Entity
-@Table(name = "users")
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity(name = "user")
+@Table(name = "user", schema = "public")
 public class User {
-
     @Id
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "FIRST_NAME")
     private String firstName;
+
+    @Column(name = "LAST_NAME")
     private String lastName;
-    private int yearOfBirth;
-    private String gender;
+
+    @Column(name = "YEAR_OF_BIRTH")
+    private Integer yearOfBirth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "GENDER")
+    private Gender gender;
+
+    //@Email
+    @Column(name = "EMAIL")//, unique = true)
     private String email;
+
+    @Column(name = "PHONE_NUMBER")//, unique = true)
     private String phoneNumber;
-    private String password;
+
+    @Column(name = "COUNTRY")
     private String country;
-    private boolean verifiedAccount = false;
 
+    @Column(name = "PASSWORD")//, nullable = false)
+    private String password;
+
+    @Column(name = "VERIFIED")//, nullable = false)
+    private boolean isVerified = false;
+
+    @Column(name = "VERIFICATION_CODE")
     private String verificationCode;
-    private LocalDateTime codeExpiry;
 
-    public User() {}
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            mappedBy = "user")
+    private List<Reservation> reservations = new ArrayList<>();
 
-    public void generateVerificationCode() {
-        this.verificationCode = UUID.randomUUID().toString().substring(0, 6);
-        this.codeExpiry = LocalDateTime.now().plusMinutes(10);
+    public Long getId() {
+        return id;
     }
 
-    public LocalDateTime getCodeExpiry() {
-        return codeExpiry;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setCodeExpiry(LocalDateTime codeExpiry) {
-        this.codeExpiry = codeExpiry;
+    public List<Reservation> getReservations() {
+        return reservations;
     }
 
-    public String getEmail() {
-        return email;
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public String getVerificationCode() {
+        return verificationCode;
     }
 
-    public String getCountry() {
-        return country;
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
     }
+
+    public String getCountry() { return country; }
 
     public void setCountry(String country) {
         this.country = country;
@@ -64,22 +89,6 @@ public class User {
         this.firstName = firstName;
     }
 
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getLastName() {
         return lastName;
     }
@@ -88,12 +97,20 @@ public class User {
         this.lastName = lastName;
     }
 
-    public String getPassword() {
-        return password;
+    public Integer getYearOfBirth() {
+        return yearOfBirth;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setYearOfBirth(Integer yearOfBirth) {
+        this.yearOfBirth = yearOfBirth;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPhoneNumber() {
@@ -104,28 +121,31 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getVerificationCode() {
-        return verificationCode;
+    public String getPassword() {
+        return password;
     }
 
-    public void setVerificationCode(String verificationCode) {
-        this.verificationCode = verificationCode;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public boolean isVerifiedAccount() {
-        return verifiedAccount;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void setVerifiedAccount(boolean verifiedAccount) {
-        this.verifiedAccount = verifiedAccount;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
-    public int getYearOfBirth() {
-        return yearOfBirth;
+    public boolean isVerified() {
+        return isVerified;
     }
 
-    public void setYearOfBirth(int yearOfBirth) {
-        this.yearOfBirth = yearOfBirth;
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public void addReservation(Reservation reservation) {
+        reservations.add(reservation);
     }
 }
-

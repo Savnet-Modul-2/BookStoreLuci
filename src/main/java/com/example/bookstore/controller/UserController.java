@@ -1,43 +1,37 @@
 package com.example.bookstore.controller;
 
 import com.example.bookstore.dto.UserDTO;
+import com.example.bookstore.entities.User;
+import com.example.bookstore.mapper.UserMapper;
 import com.example.bookstore.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
-@RestController
+@RestController()
 @RequestMapping("/users")
 public class UserController {
+    @Autowired
+    private UserService userService;
 
-    private final UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
-        UserDTO savedUser = userService.registerUser(userDTO);
-        return ResponseEntity.ok(Map.of("message", "User registered successfully.", "user", savedUser));
-    }
-
-    @PostMapping("/verify")
-    public ResponseEntity<?> verifyAccount(@RequestBody UserDTO userDTO) {
-        boolean verified = userService.verifyAccount(userDTO);
-        if (verified) {
-            return ResponseEntity.ok(Map.of("message", "Account verified successfully."));
-        }
-        return ResponseEntity.badRequest().body(Map.of("error", "Invalid code or expired."));
+    @PostMapping()
+    public ResponseEntity<?> create(@RequestBody UserDTO userDTO) {
+        User userToCreate = UserMapper.userDTO2User(userDTO);
+        User createdUser = userService.create(userToCreate);
+        return ResponseEntity.ok(UserMapper.user2UserDTO(createdUser));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UserDTO userDTO) {
-        boolean loggedIn = userService.loginUser(userDTO);
-        if (loggedIn) {
-            return ResponseEntity.ok(Map.of("message", "Login successful."));
-        }
-        return ResponseEntity.status(401).body(Map.of("error", "Invalid credentials."));
+    public ResponseEntity<?> login(@RequestBody UserDTO userDTO) {
+        User userToLogin = UserMapper.userDTO2User(userDTO);
+        User existentUser = userService.login(userToLogin);
+        return ResponseEntity.ok(UserMapper.user2UserDTO(existentUser));
+    }
+
+    @PutMapping("/{userId}")
+    public ResponseEntity<?> verify(@PathVariable Long userId, @RequestBody UserDTO updatedUserDTO) {
+        User userToUpdate = UserMapper.userDTO2User(updatedUserDTO);
+        User updatedUser = userService.verify(userId, userToUpdate);
+        return ResponseEntity.ok(UserMapper.user2UserDTO(updatedUser));
     }
 }

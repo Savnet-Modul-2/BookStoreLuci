@@ -1,38 +1,42 @@
 package com.example.bookstore.entities;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@Table(name = "libraries")
+@Entity(name = "library")
+@Table(name = "library", schema = "public")
 public class Library {
-
     @Id
+    @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "NAME")
     private String name;
-    private String address;
-    private String city;
+
+    @Column(name = "ADRESS")
+    private String adress;
+
+    @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
 
-    @OneToOne(mappedBy = "library", cascade = CascadeType.ALL)
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            mappedBy = "library")
+    private List<Book> books = new ArrayList<>();
+
+    @OneToOne(mappedBy = "library")
     private Librarian librarian;
-
-    @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Book> books;
-
-    public Library() {}
-
-    public Library(String name, String address, String city, String phoneNumber) {
-        this.name = name;
-        this.address = address;
-        this.city = city;
-        this.phoneNumber = phoneNumber;
-    }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -43,20 +47,12 @@ public class Library {
         this.name = name;
     }
 
-    public String getAddress() {
-        return address;
+    public String getAdress() {
+        return adress;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
+    public void setAdress(String adress) {
+        this.adress = adress;
     }
 
     public String getPhoneNumber() {
@@ -67,6 +63,14 @@ public class Library {
         this.phoneNumber = phoneNumber;
     }
 
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
     public Librarian getLibrarian() {
         return librarian;
     }
@@ -75,12 +79,11 @@ public class Library {
         this.librarian = librarian;
     }
 
-    public List<Book> getBooks() {
-        return books;
+    public void addBook(Book book) {
+        books.add(book);
     }
 
-    public void setBooks(List<Book> books) {
-        this.books = books;
+    public void removeBook(Book book) {
+        books.remove(book);
     }
 }
-

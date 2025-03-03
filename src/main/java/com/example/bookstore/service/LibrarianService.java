@@ -2,50 +2,52 @@ package com.example.bookstore.service;
 
 import com.example.bookstore.entities.Librarian;
 import com.example.bookstore.repository.LibrarianRepository;
-import com.example.bookstore.utils.PasswordHasher;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.InputMismatchException;
 
 @Service
 public class LibrarianService {
-
     @Autowired
     private LibrarianRepository librarianRepository;
 
-    public Librarian registerLibrarian(Librarian librarian) {
-        librarian.setPassword(PasswordHasher.hash(librarian.getPassword()));
-        return librarianRepository.save(librarian);
-    }
-
-    public Librarian login(String email, String password) {
-        Librarian librarian = librarianRepository.findByEmail(email);
-        if (librarian != null && PasswordHasher.checkPassword(password, librarian.getPassword())) {
-            return librarian;
+    public Librarian create(Librarian librarian) {
+        if (librarian.getId() != null) {
+            throw new RuntimeException("You cannot provide an ID to a new librarian that you want to create");
         }
-        throw new RuntimeException("Invalid credentials");
-    }
 
-    public List<Librarian> getAllLibrarians() {
-        return librarianRepository.findAll();
-    }
-
-    public Librarian getLibrarianById(Long id) {
-        return librarianRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Librarian not found with id: " + id));
-    }
-
-    public Librarian updateLibrarian(Long id, Librarian librarianDetails) {
-        Librarian librarian = getLibrarianById(id);
-        librarian.setName(librarianDetails.getName());
-        librarian.setEmail(librarianDetails.getEmail());
-        librarian.setPassword(PasswordHasher.hash(librarianDetails.getPassword()));
+        librarian.setPassword(encodePassword(librarian.getPassword()));
         return librarianRepository.save(librarian);
     }
 
-    public void deleteLibrarian(Long id) {
-        librarianRepository.deleteById(id);
+    public Librarian login(Librarian librarian) {
+        Librarian existentLibrarian = librarianRepository.findByEmail(librarian.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Librarian with email " + librarian.getEmail() + " not found"));
+
+        String encodedPassword = encodePassword(librarian.getPassword());
+        if (!encodedPassword.equals(existentLibrarian.getPassword())) {
+            throw new InputMismatchException();
+        }
+        return existentLibrarian;
+    }
+
+    private String encodePassword(String password) {
+        String encodedPassword = null;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+            encodedPassword = Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
+        return encodedPassword;
     }
 }
-
