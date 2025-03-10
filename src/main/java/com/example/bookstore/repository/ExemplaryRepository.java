@@ -1,5 +1,6 @@
 package com.example.bookstore.repository;
 
+
 import com.example.bookstore.entities.Exemplary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +23,8 @@ public interface ExemplaryRepository extends JpaRepository<Exemplary, Long> {
             SELECT reservation.exemplary_id FROM reservation reservation
             WHERE reservation.exemplary_id = exemplary.id
             AND NOT (reservation.end_date < :startDate OR reservation.start_date > :endDate)
+            AND reservation.reservation_status IN ('IN_PROGRESS', 'PENDING')
+            OR reservation.reservation_status = 'DELAYED'
         )
         LIMIT 1
     """, nativeQuery = true)

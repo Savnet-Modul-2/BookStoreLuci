@@ -33,7 +33,7 @@ public class UserService {
         user.setPassword(encodePassword(user.getPassword()));
         String verificationCode = generateVerificationCode();
         user.setVerificationCode(verificationCode);
-
+        System.out.println(Thread.currentThread().getName());
         emailService.sendVerificationEmail(user.getEmail(), verificationCode);
         return userRepository.save(user);
     }

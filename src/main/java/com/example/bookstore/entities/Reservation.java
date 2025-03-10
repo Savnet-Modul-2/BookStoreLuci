@@ -77,4 +77,6 @@ public class Reservation {
     public void setExemplary(Exemplary exemplary) {
         this.exemplary = exemplary;
     }
+
+
 }

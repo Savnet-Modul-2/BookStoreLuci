@@ -1,12 +1,22 @@
 package com.example.bookstore.dto;
 
+import com.example.bookstore.dto.validation.AdvancedValidation;
+import com.example.bookstore.dto.validation.BasicValidation;
+import com.example.bookstore.dto.validation.ValidDateOrder;
+import com.example.bookstore.dto.validation.DateInTheFuture;
 import com.example.bookstore.entities.ReservationStatus;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 
+@ValidDateOrder(groups = AdvancedValidation.class)
 public class ReservationDTO {
     private Long id;
+    @NotNull(groups = BasicValidation.class)
+    @DateInTheFuture(groups = AdvancedValidation.class)
     private LocalDate startDate;
+    @NotNull(groups = BasicValidation.class)
+    @DateInTheFuture(groups = AdvancedValidation.class)
     private LocalDate endDate;
     private ReservationStatus reservationStatus;
     private UserDTO user;
